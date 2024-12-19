@@ -66,6 +66,8 @@
                 data: formData,
                 success: function (response) {
                     console.log(response);
+                    sessionStorage.setItem('success_message', 'Employé créé avec succès !');
+                    window.location.href = '<?= site_url("employe/") ?>';
                 },
                 error: function (xhr, status, error) {
                     console.log('Error occurred: ' + error);
@@ -73,6 +75,7 @@
             });
         });
     });
+    
 </script>
 </body>
 </html>

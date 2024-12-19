@@ -22,8 +22,21 @@ class Employe_model extends CI_Model {
         $query = $this->db->get_where($this->table, ['id' => $id]);
         return $query->row();
     }
+    public function get_employe_by_info($data){
+        $this->db->select('*'); 
+        $this->db->from('employe');
+        $this->db->like('nom', $data);
+        $this->db->or_like('prenom', $data); 
+        $this->db->or_where('mail', $data);
+        $this->db->or_where('adresse', $data); 
+        $this->db->or_where('telephone', $data); 
+        $this->db->or_where('poste', $data); 
+        
+        $query = $this->db->get(); 
+        return $query->result();
 
-    // Update an employee's data
+    }
+
     public function update_employe($id, $data) {
         $this->db->where('id', $id);
         return $this->db->update($this->table, $data);
