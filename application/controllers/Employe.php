@@ -24,27 +24,54 @@ class Employe extends CI_Controller{
         }
     }
     public function dataempl(){
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+    
         $data= $this->Employe_model->get_all_employes();
         echo json_encode($data);
     }
     public function store(){
         $this->load->view('ajouterEmploye');
     }
-    public function create(){
-       
-        $data = [
-            'nom'       => $this->input->post('nom'),
-            'prenom'    => $this->input->post('prenom'),
-            'mail'      => $this->input->post('email'),
-            'adresse'   => $this->input->post('address'),
-            'telephone' => $this->input->post('telephone'),
-            'poste'     => $this->input->post('poste')
-        ];
-
-        // Insert data into the database
-        $this->Employe_model->insert_employe($data);
-
+    public function create()
+    {
+        // Handle preflight (OPTIONS) request
+        if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+            header('Access-Control-Allow-Origin: *');
+            header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
+            header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+            exit();  // Stop further execution for preflight
+        }
+    
+        // Set CORS headers for POST request
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+    
+        // Your actual POST request handling code
+        $rawInput = file_get_contents('php://input');
+        $data = json_decode($rawInput, true); // Decode JSON payload into an associative array
+    
+        if ($data) {
+            $insertData = [
+                'nom'       => $data['nom'] ?? null,
+                'prenom'    => $data['prenom'] ?? null,
+                'mail'      => $data['mail'] ?? null,
+                'adresse'   => $data['adresse'] ?? null,
+                'telephone' => $data['telephone'] ?? null,
+                'poste'     => $data['poste'] ?? null,
+            ];
+    
+            $this->Employe_model->insert_employe($insertData);
+            echo json_encode(['message' => 'Employé créé avec succès !']);
+        } else {
+            http_response_code(400); // Bad Request
+            echo json_encode(['error' => 'Invalid or missing JSON payload']);
+        }
     }
+    
+    
     public function delete(){
         header('Content-Type: application/json'); 
          $id = $this->input->post('id'); 
