@@ -1,20 +1,20 @@
 <?php 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Employe extends CI_Controller{
+class Utilisateur extends CI_Controller{
 
     public function __construct() {
         parent::__construct();
-        $this->load->model('Employe_model');
+        $this->load->model('Utilisateur_model');
     }
 
     
     public function index(){
        
-        $this->load->view('listEmploye');
+        $this->load->view('listutilisateur');
     }
 
-    public function getEmployebyid() {
+    public function getutilisateurbyid() {
         header('Content-Type: application/json');
     
         $id = $this->input->get('id'); // Get the 'id' parameter from the GET request
@@ -24,23 +24,23 @@ class Employe extends CI_Controller{
             return;
         }
     
-        $employee = $this->Employe_model->get_employe_by_id($id);
-    
-        if ($employee) {
-            echo json_encode($employee);
+        $utilisateure = $this->Utilisateur_model->get_utilisateur_by_id($id);
+        
+        if ($utilisateure) {
+            echo json_encode($utilisateure);
         } else {
-            echo json_encode(['status' => 'error', 'message' => 'Employee not found.']);
+            echo json_encode(['status' => 'error', 'message' => 'utilisateure not found.']);
         }
     }
     
-    public function getEmploye() {
+    public function getutilisateur() {
         $searchData = $this->input->get('searchData'); 
-        $employees = $this->Employe_model->get_employe_by_info($searchData);
-        if (empty($employees)) {
+        $utilisateures = $this->Utilisateur_model->get_utilisateur_by_info($searchData);
+        if (empty($utilisateures)) {
             echo json_encode(['message' => 'No data found']);
         } else {
             
-            echo json_encode($employees);
+            echo json_encode($utilisateures);
         }
     }
     public function dataempl(){
@@ -48,11 +48,11 @@ class Employe extends CI_Controller{
         header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
         header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
     
-        $data= $this->Employe_model->get_all_employes();
-        echo json_encode($data);
+        $data= $this->Utilisateur_model->get_all_utilisateurs();
+        echo json_encode(value: $data);
     }
     public function store(){
-        $this->load->view('ajouterEmploye');
+        $this->load->view('ajouterutilisateur');
     }
     public function create()
     {
@@ -72,30 +72,25 @@ class Employe extends CI_Controller{
         
         $rawInput = file_get_contents('php://input');
         $data = json_decode($rawInput, true); 
-    
+       
         if ($data) {
+            $existingUser = $this->Utilisateur_model->get_utilisateur_by_login($data['login'] ?? '');
+
+        if ($existingUser) {
+            
+            echo json_encode(['status' => 'error', 'message' => 'Le login existe déjà. Veuillez en choisir un autre.']);
+            return;
+        }
             $insertData = [
                 'nom'       => $data['nom'] ?? null,
                 'prenom'    => $data['prenom'] ?? null,
-                'mail'      => $data['mail'] ?? null,
-                'adresse'   => $data['adresse'] ?? null,
-                'telephone' => $data['telephone'] ?? null,
-                'poste'     => $data['poste'] ?? null,
+                'login'      => $data['login'] ?? null,
+                'mot_de_passe'   => $data['mot_de_passe'] ?? null,
+                'role' => $data['role'] ?? null,
             ];
-            $this->db->where('mail', $insertData['mail']);
-            $this->db->or_where('telephone', $insertData['telephone']);
-            $existingUser = $this->db->get('employe')->row();
-            
-            if ($existingUser) {
-                if ($existingUser->mail === $insertData['mail']) {
-                    echo json_encode(['status' => 'error', 'message' => 'L\'email existe déjà. Veuillez en choisir un autre.']);
-                } elseif ($existingUser->telephone === $insertData['telephone']) {
-                    echo json_encode(['status' => 'error', 'message' => 'Le numéro de téléphone existe déjà. Veuillez en choisir un autre.']);
-                }
-                return;
-            }
-            $this->Employe_model->insert_employe($insertData);
-            echo json_encode(['status' => 'success','message' => 'Employé créé avec succès !']);
+    
+            $this->Utilisateur_model->insert_utilisateur($insertData);
+            echo json_encode(['message' => 'Employé créé avec succès !']);
         } else {
             http_response_code(400); 
             echo json_encode(['error' => 'Invalid or missing JSON payload']);
@@ -110,6 +105,7 @@ class Employe extends CI_Controller{
         }
     
         $id = ($inputData['id']);
+       
         $data = [];
         if (!empty($inputData['nom'])) {
             $data['nom'] = $inputData['nom'];
@@ -117,24 +113,21 @@ class Employe extends CI_Controller{
         if (!empty($inputData['prenom'])) {
             $data['prenom'] = $inputData['prenom'];
         }
-        if (!empty($inputData['mail'])) {
-            $data['mail'] = $inputData['mail'];
+        if (!empty($inputData['login'])) {
+            $data['login'] = $inputData['login'];
         }
-        if (!empty($inputData['adresse'])) {
-            $data['adresse'] = $inputData['adresse'];
+        if (!empty($inputData['mot_de_passe'])) {
+            $data['mot_de_passe'] = $inputData['mot_de_passe'];
         }
-        if (!empty($inputData['telephone'])) {
-            $data['telephone'] = $inputData['telephone'];
-        }
-        if (!empty($inputData['poste'])) {
-            $data['poste'] = $inputData['poste'];
+        if (!empty($inputData['role'])) {
+            $data['role'] = $inputData['role'];
         }
     
-        $updateStatus = $this->Employe_model->update_employe($id, $data);
+        $updateStatus = $this->Utilisateur_model->update_utilisateur($id, $data);
         if ($updateStatus) {
-            echo json_encode(['status' => 'success', 'message' =>$id, $data  ]);
+            echo json_encode(['status' => 'success', 'message' =>'utilisateur mis à jour avec succès'  ]);
         } else {
-            echo json_encode(['status' => 'error', 'message' => 'Failed to update employee.']);
+            echo json_encode(['status' => 'error', 'message' => 'Échec de la mise à jour de lutilisateur.']);
         }
     }
     
@@ -142,10 +135,10 @@ class Employe extends CI_Controller{
         header('Content-Type: application/json'); 
          $id = $this->input->post('id'); 
         if ($id) {
-        $this->Employe_model->delete_employe($id); 
-        echo json_encode(['status' => 'success', 'message' => 'Employee archived successfully']);
+        $this->Utilisateur_model->delete_utilisateur($id); 
+        echo json_encode(['status' => 'success', 'message' => 'utilisateur archived successfully']);
         } else {
-        echo json_encode(['status' => 'error', 'message' => 'Invalid ID provided']);
+        echo json_encode(['status' => 'error', 'message' => 'ID non valide fourni']);
             }}
 
 }

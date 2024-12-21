@@ -23,6 +23,16 @@ class Employe_model extends CI_Model {
         return $query->row();
     }
     public function get_employe_by_info($data){
+        $post = 0;
+        if($data == 'livreur' || $data == 'Livreur') {
+            $post = 2;
+        }
+        if($data == 'gerant' || $data == 'Gerant') {
+            $post = 1;
+        }
+        if($data == 'cuisiner' || $data == 'Cuisiner') {
+            $post = 3;
+        }
         $this->db->select('*'); 
         $this->db->from('employe');
         $this->db->like('nom', $data);
@@ -30,7 +40,8 @@ class Employe_model extends CI_Model {
         $this->db->or_where('mail', $data);
         $this->db->or_where('adresse', $data); 
         $this->db->or_where('telephone', $data); 
-        $this->db->or_where('poste', $data); 
+        $this->db->or_where('poste', $post);
+
         
         $query = $this->db->get(); 
         return $query->result();

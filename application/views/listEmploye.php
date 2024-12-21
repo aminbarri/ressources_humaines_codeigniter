@@ -125,7 +125,8 @@
             success: function (response) {
                
                 let employees = JSON.parse(response);
-
+                console.log('Is Array:', Array.isArray(employees));
+              
                 // Get the table body
                 let tableBody = $("#employeeTableBody");
                 tableBody.empty(); 
