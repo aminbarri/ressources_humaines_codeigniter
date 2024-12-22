@@ -16,6 +16,18 @@ class Utilisateur_model extends CI_Model {
         $query = $this->db->get($this->table);
         return $query->result();
     }
+    public function save_session($user_id, $token, $expiration) {
+        $data = [
+            'user_id' => $user_id,
+            'token' => $token,
+            'expiration' => $expiration,
+        ];
+        $this->db->insert('sessions', $data);
+    }
+    public function get_session_by_token($token) {
+        $this->db->where('token', $token);
+        return $this->db->get('sessions')->row();
+    }
     public function get_utilisateur_by_login($login) {
         $this->db->select('*');
         $this->db->from('utilisateur'); 

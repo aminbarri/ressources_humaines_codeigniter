@@ -56,7 +56,7 @@ class Employe extends CI_Controller{
     }
     public function create()
     {
-       
+        check_role(requiredRole: '1');
         if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
             header('Access-Control-Allow-Origin: *');
             header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
@@ -102,6 +102,7 @@ class Employe extends CI_Controller{
         }
     }
     public function edit(){
+        check_role(requiredRole: '1');
         $inputData = json_decode(file_get_contents('php://input'), true);
 
         if (!$inputData) {
@@ -139,6 +140,7 @@ class Employe extends CI_Controller{
     }
     
     public function delete(){
+        check_role(requiredRole: '1');
         header('Content-Type: application/json'); 
          $id = $this->input->post('id'); 
         if ($id) {

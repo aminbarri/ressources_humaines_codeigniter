@@ -6,18 +6,16 @@ class Utilisateur extends CI_Controller{
     public function __construct() {
         parent::__construct();
         $this->load->model('Utilisateur_model');
+      
     }
 
     
-    public function index(){
-       
-        $this->load->view('listutilisateur');
-    }
+   
 
     public function getutilisateurbyid() {
         header('Content-Type: application/json');
     
-        $id = $this->input->get('id'); // Get the 'id' parameter from the GET request
+        $id = $this->input->get('id'); 
     
         if (!$id) {
             echo json_encode(['status' => 'error', 'message' => 'ID is required.']);
@@ -44,19 +42,15 @@ class Utilisateur extends CI_Controller{
         }
     }
     public function dataempl(){
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
-        header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
-    
+        
         $data= $this->Utilisateur_model->get_all_utilisateurs();
         echo json_encode(value: $data);
     }
-    public function store(){
-        $this->load->view('ajouterutilisateur');
-    }
+    
     public function create()
     {
-       
+        check_role(requiredRole: 1);
+
         if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
             header('Access-Control-Allow-Origin: *');
             header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
@@ -72,7 +66,8 @@ class Utilisateur extends CI_Controller{
         
         $rawInput = file_get_contents('php://input');
         $data = json_decode($rawInput, true); 
-       
+        $hashedPassword = password_hash($data['mot_de_passe'], PASSWORD_BCRYPT);
+
         if ($data) {
             $existingUser = $this->Utilisateur_model->get_utilisateur_by_login($data['login'] ?? '');
 
@@ -85,7 +80,7 @@ class Utilisateur extends CI_Controller{
                 'nom'       => $data['nom'] ?? null,
                 'prenom'    => $data['prenom'] ?? null,
                 'login'      => $data['login'] ?? null,
-                'mot_de_passe'   => $data['mot_de_passe'] ?? null,
+                'mot_de_passe'   => $hashedPassword ?? null,
                 'role' => $data['role'] ?? null,
             ];
     
@@ -96,7 +91,13 @@ class Utilisateur extends CI_Controller{
             echo json_encode(['error' => 'Invalid or missing JSON payload']);
         }
     }
+
+
+       
+
+        
     public function edit(){
+        check_role(requiredRole: '1');
         $inputData = json_decode(file_get_contents('php://input'), true);
 
         if (!$inputData) {
@@ -132,6 +133,7 @@ class Utilisateur extends CI_Controller{
     }
     
     public function delete(){
+        check_role(requiredRole: '1');
         header('Content-Type: application/json'); 
          $id = $this->input->post('id'); 
         if ($id) {
