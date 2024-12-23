@@ -98,7 +98,7 @@ class Employe extends CI_Controller{
             echo json_encode(['status' => 'success','message' => 'Employé créé avec succès !']);
         } else {
             http_response_code(400); 
-            echo json_encode(['error' => 'Invalid or missing JSON payload']);
+            echo json_encode(['status' => 'error','error' => 'Invalid or missing JSON payload']);
         }
     }
     public function edit(){
@@ -130,7 +130,12 @@ class Employe extends CI_Controller{
         if (!empty($inputData['poste'])) {
             $data['poste'] = $inputData['poste'];
         }
-    
+        if (empty($data)) {
+            echo json_encode(['status' => 'empty', 'message' => 'Rien à mettre à jour']);
+            return;
+        }
+        
+
         $updateStatus = $this->Employe_model->update_employe($id, $data);
         if ($updateStatus) {
             echo json_encode(['status' => 'success', 'message' =>$id, $data  ]);

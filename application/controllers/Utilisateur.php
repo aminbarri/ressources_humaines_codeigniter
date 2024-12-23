@@ -49,7 +49,7 @@ class Utilisateur extends CI_Controller{
     
     public function create()
     {
-        check_role(requiredRole: 1);
+        check_role(requiredRole: '1');
 
         if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
             header('Access-Control-Allow-Origin: *');
@@ -123,12 +123,18 @@ class Utilisateur extends CI_Controller{
         if (!empty($inputData['role'])) {
             $data['role'] = $inputData['role'];
         }
-    
+        if (empty($data)) {
+            echo json_encode(['status' => 'empty', 'message' => 'Rien à mettre à jour']);
+            return;
+        }
+        
+        
         $updateStatus = $this->Utilisateur_model->update_utilisateur($id, $data);
+        
         if ($updateStatus) {
-            echo json_encode(['status' => 'success', 'message' =>'utilisateur mis à jour avec succès'  ]);
+            echo json_encode(['status' => 'success', 'message' => 'Utilisateur mis à jour avec succès']);
         } else {
-            echo json_encode(['status' => 'error', 'message' => 'Échec de la mise à jour de lutilisateur.']);
+            echo json_encode(['status' => 'error', 'message' => 'Échec de la mise à jour de l\'utilisateur.']);
         }
     }
     
